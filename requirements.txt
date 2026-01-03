@@ -1,0 +1,57 @@
+# Core backend framework
+fastapi
+uvicorn
+starlette
+sqlalchemy
+alembic
+asyncpg
+psycopg2-binary
+sqlmodel
+argon2-cffi
+
+# Environment & security
+python-dotenv
+passlib
+bcrypt
+python-jose
+email-validator
+
+# Utilities
+requests
+pydantic
+pydantic-settings
+jinja2
+loguru
+python-multipart
+
+# Async & file handling
+aiofiles
+aiohttp
+
+# CORS & middleware
+django-cors-headers
+flask-cors
+
+# Task scheduling / background
+watchfiles
+
+
+# Data processing / analytics
+numpy
+pandas
+scikit-learn
+matplotlib
+
+# Cloud / integrations
+boto3
+sendgrid
+stripe
+
+# Deployment & server
+gunicorn
+whitenoise
+
+# Utilities for development
+black
+ruff
+pytest
