@@ -145,9 +145,18 @@ class EmailService:
         self.sendgrid_api_key = os.getenv("SENDGRID_API_KEY")
         self.sender_email = os.getenv("MAIL_FROM")
 
-        self.enabled = bool(self.sendgrid_api_key and self.sender_email)
+        # Treat local placeholders as unconfigured so invites still work via mock logging
+        placeholder_markers = ("placeholder", "local-dev", "change-me", "SG.local")
+        key_is_placeholder = any(
+            marker in (self.sendgrid_api_key or "") for marker in placeholder_markers
+        )
+
+        self.enabled = bool(self.sendgrid_api_key and self.sender_email and not key_is_placeholder)
         if not self.enabled:
-            logger.warning("📧 Email service not configured. Missing SENDGRID_API_KEY or MAIL_FROM.")
+            logger.warning(
+                "📧 Email service running in mock mode "
+                "(missing or placeholder SENDGRID_API_KEY / MAIL_FROM)."
+            )
         else:
             logger.info(f"📧 Email service configured and ready. Sender: {self.sender_email}")
 

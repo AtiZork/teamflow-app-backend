@@ -58,6 +58,41 @@ class TimesheetStatus(str, Enum):
     REJECTED = "rejected"
 
 
+class SalesDepartment(str, Enum):
+    SALES = "sales"
+    MARKETING = "marketing"
+
+
+class SalesHierarchyLevel(str, Enum):
+    LEAD = "lead"
+    EXECUTIVE = "executive"
+    JUNIOR = "junior"
+
+
+class PipelineSource(str, Enum):
+    UPWORK = "upwork"
+    LINKEDIN = "linkedin"
+    WEBSITE = "website"
+    REFERRAL = "referral"
+    OTHER = "other"
+
+
+class PipelineStage(str, Enum):
+    NEW = "new"
+    CONTACTED = "contacted"
+    QUALIFIED = "qualified"
+    PROPOSAL = "proposal"
+    NEGOTIATION = "negotiation"
+    WON = "won"
+    LOST = "lost"
+
+
+class PipelinePriority(str, Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+
+
 # ============================================================
 # LINK MODEL
 # ============================================================
@@ -1035,6 +1070,41 @@ DEFAULT_PRICING_PLANS = MemberLimitUtils.default_pricing_plans()
 
 
 # ============================================================
+# SALES & MARKETING PIPELINE
+# ============================================================
+class SalesPipelineItem(SQLModel, table=True):
+    __tablename__ = "sales_pipeline_item"
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    organization_id: int = Field(foreign_key="organization.id", nullable=False, index=True)
+    created_by_id: int = Field(foreign_key="user.id", nullable=False, index=True)
+    assigned_to_id: Optional[int] = Field(default=None, foreign_key="user.id", index=True)
+
+    department: str = Field(default=SalesDepartment.SALES.value, max_length=20, index=True)
+    hierarchy_level: str = Field(default=SalesHierarchyLevel.EXECUTIVE.value, max_length=20, index=True)
+    source: str = Field(default=PipelineSource.UPWORK.value, max_length=30, index=True)
+    stage: str = Field(default=PipelineStage.NEW.value, max_length=30, index=True)
+    priority: str = Field(default=PipelinePriority.MEDIUM.value, max_length=20, index=True)
+
+    prospect_name: str = Field(max_length=150, nullable=False)
+    company_name: Optional[str] = Field(default=None, max_length=150)
+    profile_url: Optional[str] = Field(default=None, max_length=500)
+    external_account: Optional[str] = Field(default=None, max_length=150)
+    deal_title: Optional[str] = Field(default=None, max_length=200)
+    estimated_value: float = Field(default=0.0)
+    currency: str = Field(default="USD", max_length=3)
+    probability: int = Field(default=0, ge=0, le=100)
+
+    next_follow_up: Optional[datetime] = Field(default=None, index=True)
+    last_contacted_at: Optional[datetime] = None
+    notes: Optional[str] = None
+    tags: Optional[str] = Field(default=None, max_length=500)
+
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+
+
+# ============================================================
 # EXPORTS
 # ============================================================
 __all__ = [
@@ -1051,6 +1121,12 @@ __all__ = [
     "WebhookEvent",
     "Timesheet",  # ✅ Added Timesheet to exports
     "TimesheetStatus",  # ✅ Added TimesheetStatus to exports
+    "SalesPipelineItem",
+    "SalesDepartment",
+    "SalesHierarchyLevel",
+    "PipelineSource",
+    "PipelineStage",
+    "PipelinePriority",
     "OrganizationMemberCount",
     "MemberLimitUtils",
     "SubscriptionService",
