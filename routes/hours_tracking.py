@@ -361,7 +361,10 @@ async def get_employee_hours_summary(
     month_productive = 0
     month_overtime = 0
     month_working_dates = set()
-    
+    late_days = 0
+    absent_days = 0
+    leave_days = 0
+
     for att in month_attendances:
         if att.status == "present":
             month_total += parse_time_to_minutes(att.total_hours or "00:00")

@@ -18,6 +18,8 @@ from routes.attendance import router as attendance_router
 from routes.hours_tracking import router as hours_router
 from routes.admin_dashboard import router as admin_dashboard_router
 from routes.leave_routes import router as leave_management_router
+from routes.organization import router as organization_router
+from routes.sales_marketing import router as sales_marketing_router
 from notifications.routes import router as notifications_router
 
 # =========================================
@@ -109,14 +111,15 @@ app.include_router(project_router, prefix="/projects", tags=["Projects"])
 app.include_router(tasks_router, prefix="/tasks", tags=["Tasks"])
 app.include_router(users_router, prefix="/users", tags=["Users"])       
 app.include_router(invitation_router, prefix="/auth", tags=["Invitations"])
+app.include_router(organization_router)
 app.include_router(profile_router, tags=["Profile"]) 
 app.include_router(payment_router)  # ✅ Stripe Payment Integration
-app.include_router(payment_router, prefix="/api/v1")
 app.include_router(timesheet_router)
 app.include_router(attendance_router)  # ✅ Attendance management
 app.include_router(hours_router)
 app.include_router(admin_dashboard_router)  # ✅ Admin Dashboard API
 app.include_router(leave_management_router)
+app.include_router(sales_marketing_router)
 app.include_router(notifications_router)
 
 

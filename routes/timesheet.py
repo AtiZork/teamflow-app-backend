@@ -18,6 +18,16 @@ from core.security import get_current_user, get_current_admin
 router = APIRouter(prefix="/timesheet", tags=["timesheet"])
 
 
+def ensure_org_access(current_user: User, organization_id: int) -> int:
+    """Ensure the requested organization matches the authenticated user's tenant."""
+    if current_user.organization_id != organization_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied for this organization",
+        )
+    return organization_id
+
+
 def get_week_dates(target_date: date) -> tuple[date, date]:
     """Get week start (Monday) and end (Sunday) for a given date"""
     weekday = target_date.weekday()  # Monday=0, Sunday=6
@@ -44,6 +54,7 @@ def get_user_tasks_for_week(
     Get all tasks assigned to a user for a specific week (Monday to Sunday)
     Returns tasks grouped by day with project information
     """
+    ensure_org_access(current_user, organization_id)
     # Calculate week dates
     if not week_start:
         week_start, week_end = get_current_week_dates()
@@ -146,6 +157,8 @@ def get_user_tasks_with_worklogs(
     More accurate than the basic version as it uses actual work logs
     """
     from models.models import TaskWorkLog
+
+    ensure_org_access(current_user, organization_id)
     
     # Calculate week dates
     if not week_start:
@@ -296,9 +309,11 @@ def get_timesheets(
     department: Optional[str] = None,
     week_start: Optional[date] = None,
     organization_id: int = Query(..., description="Organization ID"),
+    current_user: User = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
     """Get timesheets with filtering options"""
+    ensure_org_access(current_user, organization_id)
     query = select(Timesheet).where(Timesheet.organization_id == organization_id)
     
     if user_id:
@@ -322,12 +337,14 @@ def get_timesheet_summary(
     user_id: Optional[int] = Query(None, description="Filter by user ID"),
     week_start: Optional[date] = Query(None, description="Week start date (Monday)"),
     organization_id: int = Query(..., description="Organization ID"),
+    current_user: User = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
     """
     Get weekly timesheet summary per employee
     If no week_start provided, uses current week (Monday to Sunday)
     """
+    ensure_org_access(current_user, organization_id)
     # Calculate week dates
     if not week_start:
         week_start, week_end = get_current_week_dates()
@@ -438,6 +455,8 @@ def get_worklogs_summary(
     Supports week-based or custom date range
     """
     from datetime import datetime
+
+    ensure_org_access(current_user, organization_id)
     
     # Determine date range
     if custom_start and custom_end:
@@ -526,6 +545,7 @@ def get_daily_tasks(
     """
     Get tasks for a specific day with priority information
     """
+    ensure_org_access(current_user, organization_id)
     target_start = datetime.combine(target_date, datetime.min.time())
     target_end = datetime.combine(target_date, datetime.max.time())
     
@@ -604,6 +624,8 @@ def get_filtered_user_tasks(
     Get tasks for user with proper date filtering - tasks appear from assigned_date to due_date
     """
     from datetime import datetime
+
+    ensure_org_access(current_user, organization_id)
     
     # Calculate week dates
     if not week_start:
@@ -729,6 +751,8 @@ def getWorklogsSummary(
     Get worklogs summary for specific employee with TWH and TTT calculations
     """
     from datetime import datetime
+
+    ensure_org_access(current_user, organization_id)
     
     # Calculate week dates
     if not week_start:
