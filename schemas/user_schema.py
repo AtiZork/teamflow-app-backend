@@ -143,7 +143,6 @@ class UserRead(BaseModel):
     full_name: str = Field(..., max_length=100)
     email: EmailStr
     username: Optional[str] = Field(default=None, max_length=50)
-    password_hash: Optional[str] = None
     role: str = Field(..., max_length=20)
     is_public_admin: bool = Field(default=False)
     is_active: bool = Field(default=True)
